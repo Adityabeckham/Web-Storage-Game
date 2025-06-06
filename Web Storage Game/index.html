@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web Storage Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    hr {
+      height: 2px;
+      color: black;
+      background-color: black;
+      width: 95%;
+    }
+
+    li {
+      margin-top: 1%;
+      margin-bottom: 1%;
+      font-size: 120%;
+    }
+
+    .contents {
+      padding: 10px;
+      /* margin-left: 5%;
+      margin-right: 5%; */
+    }
+
+    .child-content {
+      border: 2px solid black;
+      padding-bottom: 2%;
+      margin-bottom: 1%;
+    }
+
+    .button {
+      padding-left: 1%;
+      padding-right: 1%;
+      font-size: 1em;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    .answer-button {
+      margin-left: 2%;
+      margin-right: 2%;
+      padding: 2%;
+      font-size: 1em;
+      width: 22%;
+      cursor: pointer;
+      margin: 4px 2%;
+      box-sizing: border-box;
+    }
+
+    #total-stats {
+      float: right;
+      width: 40%;
+      height: 50%;
+    }
+
+    #gameboard {
+      float: left;
+      width: 55%;
+      height: 40%;
+    }
+
+    #session-stats {
+      float: left;
+      margin-top: 1%;
+      width: 55%;
+    }
+
+    #instructions {
+      float: right;
+      margin-top: 1%;
+      width: 40%;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    /* BASE FONT SIZE RESPONSIVE */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+    }
+
+    h1 {
+      font-size: 1.8em;
+      margin: 20px 0;
+    }
+
+    h2 {
+      font-size: 1.5em;
+    }
+
+    h3 {
+      font-size: 1.2em;
+    }
+
+    /* FORM INPUT */
+    input[type="text"],
+    input[type="number"] {
+      width: 90%;
+      font-size: 1em;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    /* TABLE RESPONSIVE */
+    table {
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+    }
+
+    td, th {
+      font-size: 0.95em;
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 768px) {
+      #total-stats, #gameboard, #session-stats, #instructions {
+        float: none;
+        width: 100%;
+        margin-top: 2%;
+      }
+
+      .button, .answer-button {
+        font-size: 0.95em;
+      }
+
+      .answer-button {
+        width: 28%;
+      }
+
+      h1, h2, h3 {
+        text-align: center;
+      }
+
+      .contents {
+        margin: 2%;
+        padding: 5px;
+      }
+
+      table, th, td {
+        font-size: 90%;
+        padding: 6px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .answer-button {
+        width: 30%;
+        font-size: 0.85em;
+      }
+
+      .button {
+        font-size: 0.9em;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      h2 {
+        font-size: 1.3em;
+      }
+
+      h3 {
+        font-size: 1em;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        font-size: 0.95em;
+      }
+
+      table, th, td {
+        font-size: 85%;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1 align="center">Permainan Tebak Angka '123'</h1>
+
+<div class="contents">
+  <!-- Total Stats -->
+  <div class="child-content" id="total-stats" align="center">
+    <h2>Local Stats</h2>
+    <hr>
+    <div id="all-local-stats">
+      <div class="local-stat-item">
+        <h3>Jumlah kombinasi yang berhasil di tebak:</h3>
+        <h3 id="local-total-victory-field">0</h3>
+      </div>
+      <div class="local-stat-item">
+        <h3>Jumlah tebakan salah terbanyak sekali main:</h3>
+        <h3 id="local-maximum-attempt-field">0</h3>
+      </div>
+      <button class="button" id="destroy-data-button">Hapus semua data</button>
+    </div>
+  </div>
+
+  <!-- Game Board -->
+  <div class="child-content" id="gameboard" align="center">
+    <h2>Game Board</h2>
+    <hr>
+    <div id="before-game-display">
+      <h3>Tekan tombol "Play" di bawah jika sudah siap</h3>
+      <button class="button" id="play-button">Bermain</button>
+    </div>
+    <div id="during-game-display" hidden>
+      <h3>Silahkan menebak angka!</h3>
+      <h3>Jawaban Anda:</h3>
+      <h1>"<u><span id="session-user-answer-field"></span></u>"</h1>
+      <button class="answer-button" id="answer-1-button">1</button>
+      <button class="answer-button" id="answer-2-button">2</button>
+      <button class="answer-button" id="answer-3-button">3</button>
+      <h3><span id="session-user-wrong-answer-field"></span> bukanlah jawabannya...</h3><br><br>
+    </div>
+    <div id="after-game-display" hidden>
+      <h3>Selamat tebakan Anda benar!</h3>
+      <h3>Jawabannya adalah:</h3>
+      <h1>"<span id="session-true-answer-field"></span>"</h1>
+      <button class="button" id="restart-button">Main Lagi</button>
+    </div>
+  </div>
+
+  <!-- Session Stats -->
+  <div class="child-content" id="session-stats" align="center">
+    <h2>Game Session Stats</h2>
+    <hr>
+    <div id="all-session-stats">
+      <div class="session-stat-item">
+        <h3>Jumlah tebakan salah:</h3>
+        <h3 id="session-user-attempts-amount-field">0</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="child-content" id="instructions">
+    <h2 align="center">Cara bermain</h2>
+    <hr>
+    <h3 align="center">Selamat datang ke permainan tebak angka, berikut instruksi-nya:</h3>
+    <ul id="instructions-list" align="left">
+      <li>Anda harus mencari kombinasi angka yang terdiri dari angka "1", "2", dan "3".</li>
+      <li>Kombinasi terdiri dari 3 angka unik, seperti "123", "231", dll.</li>
+      <li>Tidak boleh angka yang berulang seperti "112" atau lebih dari 3 angka.</li>
+      <li><i>Have fun and don't cheat!</i></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Form Tambah User -->
+<h1 align="center">Penambahan User Baru</h1>
+<div class="contents" align="center">
+  <div class="child-content" id="user-form">
+    <h2>Form User Data</h2>
+    <hr>
+    <form id="form-data-user">
+      <div class="form-element">
+        <label for="nama">Nama user:</label><br>
+        <input id="nama" type="text" name="nama" placeholder="Nama user" maxlength="10" required><br>
+      </div>
+      <div class="form-element">
+        <label for="umur">Umur user:</label><br>
+        <input id="umur" type="number" name="umur" placeholder="Umur user" min="1" max="99" required><br>
+      </div>
+      <div class="form-element">
+        <label for="domisili">Domisili user:</label><br>
+        <input id="domisili" type="text" name="domisili" placeholder="Domisili user" maxlength="10" required><br>
+      </div>
+      <div class="form-element">
+        <input id="submitButton" type="submit" value="Submit Data" class="button">
+      </div>
+    </form>
+  </div>
+
+  <!-- User List -->
+  <div class="child-content" id="user-list">
+    <h2>User List</h2>
+    <hr>
+    <table id="user-list-table">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Umur</th>
+          <th>Domisili</th>
+        </tr>
+      </thead>
+      <tbody id="user-list-detail" align="center"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="form-element" style="text-align:center;">
+  <button class="button" id="clear-user-data-button" type="button">Hapus Semua Data User</button>
+</div>
+
+
+<script>
+  // Setup awal
+  const sessionAnswerKey = 'SESSION_ANSWER';
+  const sessionUserAttemptsKey = 'SESSION_USER_ATTEMPTS';
+  const localTotalVictoryKey = 'LOCAL_TOTAL_VICTORIES_PLAYED';
+  const localMaximumAttemptsKey = 'LOCAL_MAXIMUM_ATTEMPTS';
+  const storageKey = 'STORAGE_KEY';
+
+  const localTotalVictoryField = document.getElementById('local-total-victory-field');
+  const localMaximumAttemptField = document.getElementById('local-maximum-attempt-field');
+  const destroyDataButton = document.getElementById('destroy-data-button');
+  const playButton = document.getElementById('play-button');
+  const restartButton = document.getElementById('restart-button');
+  const beforeGameDisplay = document.getElementById('before-game-display');
+  const duringGameDisplay = document.getElementById('during-game-display');
+  const afterGameDisplay = document.getElementById('after-game-display');
+  const sessionUserAnswerField = document.getElementById('session-user-answer-field');
+  const sessionUserWrongAnswerField = document.getElementById('session-user-wrong-answer-field');
+  const sessionTrueAnswerField = document.getElementById('session-true-answer-field');
+  const sessionUserAttemptsField = document.getElementById('session-user-attempts-amount-field');
+
+  const answerButtons = {
+    '1': document.getElementById('answer-1-button'),
+    '2': document.getElementById('answer-2-button'),
+    '3': document.getElementById('answer-3-button')
+  };
+
+  function getAnswer() {
+    let arr = ['1', '2', '3'];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.join('');
+  }
+
+  window.addEventListener('load', function () {
+    if (typeof(Storage) === "undefined") {
+      alert('Browser tidak mendukung Web Storage.');
+      return;
+    }
+
+    // Init values
+    sessionStorage.setItem(sessionAnswerKey, '');
+    sessionStorage.setItem(sessionUserAttemptsKey, 0);
+    if (localStorage.getItem(localTotalVictoryKey) === null) localStorage.setItem(localTotalVictoryKey, 0);
+    if (localStorage.getItem(localMaximumAttemptsKey) === null) localStorage.setItem(localMaximumAttemptsKey, 0);
+
+    localTotalVictoryField.innerText = localStorage.getItem(localTotalVictoryKey);
+    localMaximumAttemptField.innerText = localStorage.getItem(localMaximumAttemptsKey);
+    sessionUserAttemptsField.innerText = sessionStorage.getItem(sessionUserAttemptsKey);
+
+    renderUserList();
+  });
+
+  playButton.addEventListener('click', function () {
+    sessionStorage.setItem(sessionAnswerKey, getAnswer());
+    sessionStorage.setItem(sessionUserAttemptsKey, 0);
+    sessionUserAnswerField.innerText = '';
+    sessionUserWrongAnswerField.innerText = '';
+    sessionUserAttemptsField.innerText = '0';
+
+    beforeGameDisplay.hidden = true;
+    duringGameDisplay.hidden = false;
+  });
+
+  restartButton.addEventListener('click', () => {
+    afterGameDisplay.hidden = true;
+    beforeGameDisplay.hidden = false;
+    sessionUserAnswerField.innerText = '';
+    sessionUserWrongAnswerField.innerText = '';
+    sessionStorage.setItem(sessionUserAttemptsKey, 0);
+    sessionUserAttemptsField.innerText = '0';
+  });
+
+  Object.entries(answerButtons).forEach(([num, btn]) => {
+    btn.addEventListener('click', () => {
+      sessionUserAnswerField.innerText += num;
+      if (sessionUserAnswerField.innerText.length === 3) {
+        checkAnswer(sessionUserAnswerField.innerText);
+      }
+    });
+  });
+
+  function checkAnswer(guess) {
+    const answer = sessionStorage.getItem(sessionAnswerKey);
+    if (guess === answer) {
+      duringGameDisplay.hidden = true;
+      afterGameDisplay.hidden = false;
+      sessionTrueAnswerField.innerText = answer;
+      updateScore();
+    } else {
+      let attempts = parseInt(sessionStorage.getItem(sessionUserAttemptsKey), 10) + 1;
+      sessionStorage.setItem(sessionUserAttemptsKey, attempts);
+      sessionUserAttemptsField.innerText = attempts;
+      sessionUserWrongAnswerField.innerText = guess;
+      sessionUserAnswerField.innerText = '';
+    }
+  }
+
+  function updateScore() {
+    // Update local victory count
+    let victories = parseInt(localStorage.getItem(localTotalVictoryKey), 10) + 1;
+    localStorage.setItem(localTotalVictoryKey, victories);
+    localTotalVictoryField.innerText = victories;
+
+    // Update max attempts if needed
+    let attempts = parseInt(sessionStorage.getItem(sessionUserAttemptsKey), 10);
+    let maxAttempts = parseInt(localStorage.getItem(localMaximumAttemptsKey), 10);
+    if (attempts > maxAttempts) {
+      localStorage.setItem(localMaximumAttemptsKey, attempts);
+      localMaximumAttemptField.innerText = attempts;
+    }
+  }
+
+  destroyDataButton.addEventListener('click', () => {
+    if (confirm('Apakah Anda yakin ingin menghapus semua data local storage?')) {
+      localStorage.clear();
+      localTotalVictoryField.innerText = '0';
+      localMaximumAttemptField.innerText = '0';
+    }
+  });
+
+  // User Data Handling
+  const userForm = document.getElementById('form-data-user');
+  const userListDetail = document.getElementById('user-list-detail');
+  const clearUserDataButton = document.getElementById('clear-user-data-button');
+
+  userForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const nama = document.getElementById('nama').value.trim();
+    const umur = document.getElementById('umur').value.trim();
+    const domisili = document.getElementById('domisili').value.trim();
+
+    if (!nama || !umur || !domisili) {
+      alert('Semua field harus diisi!');
+      return;
+    }
+
+    let users = JSON.parse(localStorage.getItem(storageKey)) || [];
+    users.push({ nama, umur, domisili });
+    localStorage.setItem(storageKey, JSON.stringify(users));
+
+    renderUserList();
+
+    userForm.reset();
+  });
+
+  function renderUserList() {
+    let users = JSON.parse(localStorage.getItem(storageKey)) || [];
+    userListDetail.innerHTML = '';
+    users.forEach(user => {
+      let row = document.createElement('tr');
+      let namaCell = document.createElement('td');
+      namaCell.textContent = user.nama;
+      let umurCell = document.createElement('td');
+      umurCell.textContent = user.umur;
+      let domisiliCell = document.createElement('td');
+      domisiliCell.textContent = user.domisili;
+      row.appendChild(namaCell);
+      row.appendChild(umurCell);
+      row.appendChild(domisiliCell);
+      userListDetail.appendChild(row);
+    });
+  }
+
+  clearUserDataButton.addEventListener('click', () => {
+    if (confirm('Apakah Anda yakin ingin menghapus semua data user?')) {
+      localStorage.removeItem(storageKey);
+      renderUserList();
+    }
+  });
+</script>
+
+</body>
+</html>
