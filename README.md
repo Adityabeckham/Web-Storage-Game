@@ -12,6 +12,11 @@ Permainan tebakan angka sederhana berbasis web yang menggunakan **Web Storage AP
 
 ---
 
+## PREVIEW
+![image](https://github.com/user-attachments/assets/7cdcbb58-0396-4ad9-b5f4-f801a9e6fe48)
+
+## LINK : https://webgame-tebak-angka.netlify.app/
+
 ## Fitur
 
 - **Permainan Tebak Angka**  
